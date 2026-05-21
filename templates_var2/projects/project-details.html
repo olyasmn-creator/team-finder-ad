@@ -1,0 +1,226 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ project.name }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/project_details.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="project-container">
+    <div class="project-card">
+        <div class="project-card-header">
+            <a href="/users/{{ project.owner.id }}">
+                <div class="project-card-header-left">
+                    {% if project.owner.avatar %}
+                        <img src="{{ project.owner.avatar.url }}" alt="Аватар автора" class="project-author-avatar">
+                    {% else %}
+                        <img src="{% static 'images/default-avatar.png' %}" alt="Аватар по умолчанию" class="project-author-avatar">
+                    {% endif %}
+                    <div class="project-meta">
+                        <span class="project-author">{{ project.owner.name }} {{ project.owner.surname }}</span>
+                        <span class="project-date">{{ project.created_at|date:"d.m.Y" }}</span>
+                    </div>
+                </div>
+            </a>
+            <div class="project-card-header-right">
+                <span class="project-status-black">
+                    {% if project.status == "open" %}
+                        Открыт
+                    {% elif project.status == "closed" %}
+                        Закрыт
+                    {% else %}
+                        {{ project.status }}
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+
+        <div class="project-card-body">
+                <h2 class="project-title">{{ project.name }}</h2>
+                <p class="project-description">{{ project.description }}</p>
+
+                {% if project.github_url %}
+                <p class="project-link">
+                    {% include 'includes/svg/github.html' %}
+                    <a href="{{ project.github_url }}" target="_blank">Репозиторий на GitHub</a>
+                </p>
+                {% endif %}
+        </div>
+        
+        <div class="project-actions">
+            <a href="#"
+               class="black-button black-button-share share-button"
+               data-url="/projects/{{ project.id }}">
+                {% include 'includes/svg/share.html' %}
+            </a>
+            {% if user.id == project.owner.id %}
+                <a href="/projects/{{ project.id }}/edit" class="black-button">
+                    {% include 'includes/svg/pen.html' %}
+                    Редактировать
+                </a>
+                {% if project.status == "open" %}
+                    <button class="black-button" id="complete-project-btn" data-id="{{ project.id }}">
+                        Завершить проект
+                    </button>
+                {% endif %}
+            {% else %}
+                {% if user.is_authenticated %}
+                    <!-- Кнопка участия -->
+                    <button id="participate-btn" class="black-button"
+                            data-project="{{ project.id }}"
+                    >
+                        {% if request.user in project.participants.all %}
+                            Покинуть проект
+                        {% else %}
+                            Присоединиться к проекту
+                        {% endif %}
+                    </button>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="project-participants-card">
+        <h3>Участники проекта ({{ project.participants.all|length }})</h3>
+        <div id="participants-list" class="participants-list">
+            {% for member in project.participants.all %}
+            <!-- Обертка для участника с кнопкой удаления -->
+            <div style="position: relative; display: block; margin-bottom: 10px;">
+                <a href="/users/{{ member.id }}" id="participant-{{ member.id }}" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="participant-item">
+                        {% if member.avatar %}
+                            <img src="{{ member.avatar.url }}" alt="Аватар" class="participant-avatar">
+                        {% else %}
+                            <img src="{% static 'images/default-avatar.png' %}" alt="Аватар по умолчанию" class="participant-avatar">
+                        {% endif %}
+                        <div class="participant-info">
+                            <span class="participant-name">{{ member.name }} {{ member.surname }}</span>
+                            <span class="participant-role">
+                                {% if member.id == project.owner.id %}Автор проекта{% else %}Участник{% endif %}
+                            </span>
+                        </div>
+                    </div>
+                </a>
+                
+                <!-- Кнопка удаления (только для владельца) -->
+                {% if is_owner and member.id != project.owner.id %}
+                <button class="remove-participant-btn" 
+                        data-participant-id="{{ member.id }}" 
+                        data-project-id="{{ project.id }}"
+                        title="Удалить участника"
+                        style="position: absolute; top: 5px; right: 5px; background: #dc3545; color: white; border: none; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; font-size: 16px; line-height: 1; display: flex; align-items: center; justify-content: center;">
+                    ×
+                </button>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p id="no-participants">Пока нет участников</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+// === Кнопка "Поделиться" ===
+document.querySelector('.share-button')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    const url = this.dataset.url || window.location.href;
+    navigator.clipboard.writeText(url).then(() => {
+        alert('Ссылка скопирована!');
+    });
+});
+
+// === Кнопка "Завершить проект" ===
+document.getElementById('complete-project-btn')?.addEventListener('click', function() {
+    if (confirm('Завершить проект?')) {
+        const projectId = this.dataset.id;
+        fetch('/projects/' + projectId + '/complete/', {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        })
+        .then(r => r.ok && location.reload());
+    }
+});
+
+// === Кнопка участия ===
+document.getElementById('participate-btn')?.addEventListener('click', function() {
+    const projectId = this.dataset.project;
+    const url = '/projects/' + projectId + '/toggle-participate/';
+    
+    this.disabled = true;
+    this.textContent = '⏳';
+    this.style.opacity = '0.6';
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken'),
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            window.location.reload();
+        } else {
+            throw new Error('Ошибка');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Ошибка при выполнении операции');
+        this.disabled = false;
+        this.textContent = 'Присоединиться к проекту';
+        this.style.opacity = '1';
+    });
+});
+
+// === Удаление участника (только для владельца) ===
+document.querySelectorAll('.remove-participant-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const participantId = this.dataset.participantId;
+        const projectId = this.dataset.projectId;
+        
+        if (confirm('Удалить этого участника из проекта?')) {
+            fetch('/projects/' + projectId + '/remove-participant/' + participantId + '/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    alert('Ошибка при удалении участника');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка сети');
+            });
+        }
+    });
+});
+
+// === Получение CSRF токена ===
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

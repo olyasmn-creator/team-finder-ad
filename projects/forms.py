@@ -1,7 +1,7 @@
 from django import forms
 from .models import Project
 
-# Константы для валидации
+
 GITHUB_DOMAIN = 'github.com'
 GITHUB_URL_PROTOCOLS = ('http://', 'https://')
 
@@ -19,13 +19,11 @@ class GitHubUrlMixin:
         url = self.cleaned_data.get('github_url', '').strip()
         
         if url:
-            # Проверка протокола
             if not url.lower().startswith(GITHUB_URL_PROTOCOLS):
                 raise forms.ValidationError(
                     f'Ссылка должна начинаться с http:// или https://'
                 )
             
-            # Проверка домена
             if GITHUB_DOMAIN not in url.lower():
                 raise forms.ValidationError(
                     f'Ссылка должна вести на репозиторий GitHub (домен {GITHUB_DOMAIN})'
@@ -41,7 +39,6 @@ class ProjectForm(GitHubUrlMixin, forms.ModelForm):
     """
     class Meta:
         model = Project
-        # Поля, которые пользователь может заполнять вручную
         fields = ['name', 'description', 'github_url', 'status']
         widgets = {
             'name': forms.TextInput(attrs={

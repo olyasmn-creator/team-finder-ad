@@ -168,3 +168,4 @@ def remove_participant_view(request, project_pk, participant_pk):
     project.participants.remove(participant)
     
     return JsonResponse({'status': 'ok'})
+    

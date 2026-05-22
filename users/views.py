@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .constants import PROJECTS_PER_PAGE, SKILLS_LIMIT, USERS_PER_PAGE
 from .forms import (
-    CustomPasswordChangeForm,
+    PasswordChangeForm,
     LoginForm,
     ProfileEditForm,
     RegisterForm,

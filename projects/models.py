@@ -56,4 +56,3 @@ class Project(models.Model):
             return False
         self.participants.add(user)
         return True
-    

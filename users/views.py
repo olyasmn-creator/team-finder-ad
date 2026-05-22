@@ -96,7 +96,7 @@ def profile_edit_view(request, pk):
 @login_required
 def password_change_view(request):
     """Смена пароля"""
-    form = CustomPasswordChangeForm(request.user, request.POST or None)
+    form = PasswordChangeForm(request.user, request.POST or None)
     if form.is_valid():
         user = form.save()
         login(request, user)

@@ -184,3 +184,4 @@ def skill_remove_api(request, user_id, skill_id):
         request.user.skills.remove(skill)
     
     return JsonResponse({'status': 'ok'})
+    

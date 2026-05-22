@@ -8,9 +8,7 @@ PHONE_MAX_LENGTH = 12
 # === Константы для генерации аватара ===
 
 AVATAR_DEFAULT_SIZE = (200, 200)
-
 AVATAR_FONT_SIZE = 100
-
 AVATAR_TEXT_COLOR = 'white'
 
 AVATAR_COLORS = [
@@ -21,3 +19,9 @@ AVATAR_COLORS = [
     (230, 126, 34),
     (231, 76, 60),
 ]
+
+# === Константы для views ===
+
+USERS_PER_PAGE = 12
+PROJECTS_PER_PAGE = 10
+SKILLS_LIMIT = 10

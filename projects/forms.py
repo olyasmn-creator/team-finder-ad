@@ -1,10 +1,42 @@
 from django import forms
 from .models import Project
 
+# Константы для валидации
+GITHUB_DOMAIN = 'github.com'
+GITHUB_URL_PROTOCOLS = ('http://', 'https://')
 
-class ProjectForm(forms.ModelForm):
+
+class GitHubUrlMixin:
     """
-    Форма для создания и редактирования проекта
+    Миксин для валидации ссылки на GitHub.
+    Можно использовать в любых формах, где есть поле github_url.
+    """
+    def clean_github_url(self):
+        """
+        Валидация ссылки на GitHub.
+        Проверяет, что ссылка ведёт именно на домен github.com.
+        """
+        url = self.cleaned_data.get('github_url', '').strip()
+        
+        if url:
+            # Проверка протокола
+            if not url.lower().startswith(GITHUB_URL_PROTOCOLS):
+                raise forms.ValidationError(
+                    f'Ссылка должна начинаться с http:// или https://'
+                )
+            
+            # Проверка домена
+            if GITHUB_DOMAIN not in url.lower():
+                raise forms.ValidationError(
+                    f'Ссылка должна вести на репозиторий GitHub (домен {GITHUB_DOMAIN})'
+                )
+                
+        return url
+
+
+class ProjectForm(GitHubUrlMixin, forms.ModelForm):
+    """
+    Форма для создания и редактирования проекта.
     Используется на странице /projects/create-project/ и /projects/<id>/edit/
     """
     class Meta:
@@ -27,21 +59,3 @@ class ProjectForm(forms.ModelForm):
             }),
             'status': forms.Select(attrs={'class': 'form-control'}),
         }
-
-    def clean_github_url(self):
-        """
-        Валидация ссылки на GitHub
-        Проверяет, что ссылка ведёт именно на домен github.com
-        """
-        url = self.cleaned_data.get('github_url', '').strip()
-        
-        if url:
-            # Проверка протокола
-            if not url.lower().startswith(('http://', 'https://')):
-                raise forms.ValidationError('Ссылка должна начинаться с http:// или https://')
-            
-            # Проверка домена
-            if 'github.com' not in url.lower():
-                raise forms.ValidationError('Ссылка должна вести на репозиторий GitHub (домен github.com)')
-                
-        return url

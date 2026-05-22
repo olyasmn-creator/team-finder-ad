@@ -1,7 +1,6 @@
 from django import forms
 from .models import Project
 
-
 GITHUB_DOMAIN = 'github.com'
 GITHUB_URL_PROTOCOLS = ('http://', 'https://')
 

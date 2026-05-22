@@ -19,6 +19,6 @@ urlpatterns = [
 # === Раздача медиа-файлов в режиме отладки ===
 if settings.DEBUG:
     urlpatterns += static(
-        settings.MEDIA_URL,  # URL-префикс для медиа: '/media/'
-        document_root=settings.MEDIA_ROOT  # Папка на диске: '/path/to/media'
+        settings.MEDIA_URL,
+        document_root=settings.MEDIA_ROOT
     )

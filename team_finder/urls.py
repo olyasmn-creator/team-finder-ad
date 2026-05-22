@@ -27,3 +27,4 @@ if settings.DEBUG:
         settings.MEDIA_URL,  # URL-префикс для медиа: '/media/'
         document_root=settings.MEDIA_ROOT  # Папка на диске: '/path/to/media'
     )
+    

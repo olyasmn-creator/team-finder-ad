@@ -1,14 +1,15 @@
 from django.db import models
-from users.models import User
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+# Константы для длин полей
+NAME_MAX_LENGTH = 200
+STATUS_MAX_LENGTH = 6
 
 
 class Project(models.Model):
-    """
-    Модель проекта для платформы TeamFinder
-    Представляет pet-проект, который создаёт пользователь для поиска команды
-    """
-    
-    # Варианты статуса проекта (длина до 6 символов)
     STATUS_OPEN = 'open'
     STATUS_CLOSED = 'closed'
     STATUS_CHOICES = [
@@ -16,37 +17,20 @@ class Project(models.Model):
         (STATUS_CLOSED, 'Closed'),
     ]
     
-    # === Основные поля проекта ===
-    
-    # Название проекта (до 200 символов)
-    name = models.CharField(max_length=200)
-    
-    # Подробное описание (необязательное)
+    name = models.CharField(max_length=NAME_MAX_LENGTH)
     description = models.TextField(blank=True)
-    
-    # Автор проекта — внешний ключ на пользователя
-    # related_name позволяет обращаться: user.owned_projects
     owner = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         related_name='owned_projects'
     )
-    
-    # Дата создания — заполняется автоматически при первом сохранении
     created_at = models.DateTimeField(auto_now_add=True)
-    
-    # Ссылка на репозиторий GitHub (необязательная)
     github_url = models.URLField(blank=True)
-    
-    # Статус проекта: открыт или закрыт
     status = models.CharField(
-        max_length=6,
+        max_length=STATUS_MAX_LENGTH,
         choices=STATUS_CHOICES,
         default=STATUS_OPEN
     )
-    
-    # Участники проекта — связь многие-ко-многим с пользователями
-    # related_name позволяет обращаться: user.participated_projects
     participants = models.ManyToManyField(
         User,
         blank=True,
@@ -54,43 +38,23 @@ class Project(models.Model):
     )
     
     class Meta:
-        """
-        Мета-настройки модели
-        """
-        # Сортировка по умолчанию: новые проекты сверху
         ordering = ['-created_at']
-        # Человеко-читаемые названия для админки
         verbose_name = 'Проект'
         verbose_name_plural = 'Проекты'
     
     def __str__(self):
-        """
-        Строковое представление объекта (отображается в админке и shell)
-        """
         return self.name
     
-    # === Дополнительные методы (опционально, для удобства) ===
-    
     def is_owner(self, user):
-        """
-        Проверка: является ли переданный пользователь владельцем проекта
-        """
         return self.owner == user
     
     def get_participants_count(self):
-        """
-        Возвращает количество участников проекта
-        """
         return self.participants.count()
     
     def toggle_participant(self, user):
-        """
-        Переключает участие пользователя: добавляет, если нет,
-        или удаляет, если пользователь уже в участниках
-        """
         if self.participants.filter(pk=user.pk).exists():
             self.participants.remove(user)
-            return False  # Пользователь был удалён
-        else:
-            self.participants.add(user)
-            return True  # Пользователь был добавлен
+            return False
+        self.participants.add(user)
+        return True
+        

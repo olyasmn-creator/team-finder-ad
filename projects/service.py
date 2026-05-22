@@ -14,4 +14,3 @@ def get_paginated_queryset(queryset, request, per_page=12):
     paginator = Paginator(queryset, per_page)
     page_number = request.GET.get('page')
     return paginator.get_page(page_number)
-  

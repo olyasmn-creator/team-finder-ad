@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 
-# Константы для длин полей
 NAME_MAX_LENGTH = 200
 STATUS_MAX_LENGTH = 6
 

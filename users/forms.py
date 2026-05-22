@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
 from .models import User
 import re
+from projects.forms import GitHubUrlMixin
 
 
 class RegisterForm(forms.ModelForm):
@@ -14,7 +15,7 @@ class RegisterForm(forms.ModelForm):
         widget=forms.PasswordInput(attrs={'placeholder': 'Придумайте пароль'})
     )
     
-    # Дополнительное поле для валидации (не сохраняется в модель напрямую через Meta)
+    # Дополнительное поле для валидации
     phone = forms.CharField(
         label='Телефон',
         max_length=12,
@@ -40,7 +41,7 @@ class RegisterForm(forms.ModelForm):
         """
         phone = self.cleaned_data.get('phone', '')
     
-        # Если поле пустое — возвращаем пустую строку (телефон не обязателен)
+        # Если поле пустое - возвращаем пустую строку (телефон не обязателен)
         if not phone:
             return ''
     
@@ -80,6 +81,7 @@ class RegisterForm(forms.ModelForm):
             user.save()
         return user
 
+
 class LoginForm(AuthenticationForm):
     """
     Форма входа в систему
@@ -96,7 +98,7 @@ class LoginForm(AuthenticationForm):
     )
 
 
-class ProfileEditForm(forms.ModelForm):
+class ProfileEditForm(GitHubUrlMixin, forms.ModelForm):
     """
     Форма редактирования профиля пользователя
     Позволяет изменить name, surname, avatar, about, phone, github_url

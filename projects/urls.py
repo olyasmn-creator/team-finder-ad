@@ -1,8 +1,7 @@
 from django.urls import path
 from . import views
 
-# Пространство имён для приложения projects
-# Позволяет обращаться к URL как 'projects:list', 'projects:detail' и тд
+
 app_name = 'projects'
 
 urlpatterns = [

@@ -98,7 +98,7 @@ def password_change_view(request):
 
 def user_list_view(request):
     """
-    Список всех пользователей с фильтрацией по навыкам (Вариант 2)
+    Список всех пользователей с фильтрацией по навыкам
     """
     queryset = User.objects.filter(is_active=True).order_by('-id')
     

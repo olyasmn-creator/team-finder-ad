@@ -4,29 +4,19 @@ from http import HTTPStatus
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .constants import PROJECTS_PER_PAGE, SKILLS_LIMIT, USERS_PER_PAGE
 from .forms import (
-    PasswordChangeForm,
     LoginForm,
+    PasswordChangeForm,
     ProfileEditForm,
     RegisterForm,
 )
 from .models import Skill, User
-
-
-def get_paginated_queryset(queryset, request, per_page=12):
-    """
-    Возвращает пагинированный queryset.
-    Используется для устранения дублирования кода.
-    """
-    paginator = Paginator(queryset, per_page)
-    page_number = request.GET.get('page')
-    return paginator.get_page(page_number)
+from projects.service import get_paginated_queryset
 
 
 def register_view(request):

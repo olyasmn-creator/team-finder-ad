@@ -48,6 +48,7 @@ class RegisterForm(PhoneValidationMixin, forms.ModelForm):
     Форма регистрации нового пользователя
     Содержит обязательные поля: name, surname, email, password
     """
+    
     password = forms.CharField(
         label='Пароль',
         widget=forms.PasswordInput(attrs={'placeholder': 'Придумайте пароль'})
@@ -89,6 +90,7 @@ class LoginForm(AuthenticationForm):
     Форма входа в систему
     Наследуемся от стандартной AuthenticationForm, но меняем поле username на email
     """
+    
     username = forms.EmailField(
         label='Email',
         widget=forms.EmailInput(attrs={'autofocus': True, 'placeholder': 'Ваш email'})
@@ -118,6 +120,7 @@ class PasswordChangeForm(PasswordChangeForm):
     """
     Форма смены пароля
     """
+    
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         for field_name in ['old_password', 'new_password1', 'new_password2']:

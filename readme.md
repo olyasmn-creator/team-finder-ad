@@ -113,11 +113,10 @@ cp .env_example .env
 Откройте `.env` и заполните значения:
 
 ```env
-# Django settings
 DJANGO_SECRET_KEY=your-secret-key-here
 DJANGO_DEBUG=True
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
 
-# PostgreSQL settings
 POSTGRES_DB=team_finder
 POSTGRES_USER=team_finder
 POSTGRES_PASSWORD=your_password
@@ -151,32 +150,38 @@ python manage.py runserver
 
 ```
 team-finder-ad/
-├── manage.py                 # Django management script
-├── requirements.txt          # Зависимости проекта
-├── docker-compose.yml        # Конфигурация Docker
-├── .env_example              # Пример переменных окружения
-├── team_finder/              # Основной проект Django
-│   ├── settings.py           # Настройки проекта
-│   ├── urls.py               # Корневые URL
-│   └── wsgi.py               # WSGI конфигурация
-├── users/                    # Приложение пользователей
-│   ├── models.py             # Модель User + Skill
-│   ├── views.py              # Views для пользователей
-│   ├── forms.py              # Формы регистрации/авторизации
-│   └── urls.py               # URL пользователей
-├── projects/                 # Приложение проектов
-│   ├── models.py             # Модель Project
-│   ├── views.py              # Views для проектов
-│   ├── forms.py              # Формы проектов
-│   └── urls.py               # URL проектов
-├── static/                   # Статические файлы
-│   ├── css/                  # CSS стили
-│   ├── js/                   # JavaScript файлы
-│   └── images/               # Изображения
-└── templates_var2/           # HTML шаблоны 
-    ├── base.html             # Базовый шаблон
-    ├── users/                # Шаблоны пользователей
-    └── projects/             # Шаблоны проектов
+├── manage.py                     # Django management script
+├── requirements.txt              # Зависимости проекта
+├── docker-compose.yml            # Конфигурация Docker
+├── .env_example                  # Пример переменных окружения
+├── team_finder/                  # Основной проект Django
+│   ├── settings.py               # Настройки проекта
+│   ├── urls.py                   # Корневые URL
+│   └── wsgi.py                   # WSGI конфигурация
+├── users/                        # Приложение пользователей
+│   ├── models.py                 # Модели User и Skill
+│   ├── managers.py               # UserManager
+│   ├── constants.py              # Константы для users
+│   ├── views.py                  # Views для пользователей
+│   ├── forms.py                  # Формы регистрации/авторизации
+│   ├── urls.py                   # URL пользователей
+│   └── service.py                # Вспомогательные функции (пагинация)
+├── projects/                     # Приложение проектов
+│   ├── models.py                 # Модель Project
+│   ├── constants.py              # Константы для projects
+│   ├── views.py                  # Views для проектов
+│   ├── forms.py                  # Формы проектов
+│   ├── urls.py                   # URL проектов
+│   ├── admin.py                  # Настройка админки
+│   └── service.py                # Вспомогательные функции (пагинация)
+├── static/                       # Статические файлы
+│   ├── css/                      # CSS стили
+│   ├── js/                       # JavaScript файлы
+│   └── images/                   # Изображения
+└── templates_var2/               # HTML шаблоны 
+    ├── base.html                 # Базовый шаблон
+    ├── users/                    # Шаблоны пользователей
+    └── projects/                 # Шаблоны проектов
 ```
 
 ## 🔐 Переменные окружения (.env)
@@ -185,12 +190,12 @@ team-finder-ad/
 |------------|----------|--------|
 | `DJANGO_SECRET_KEY` | Секретный ключ Django | `django-insecure-...` |
 | `DJANGO_DEBUG` | Режим отладки (True/False) | `True` |
+| `DJANGO_ALLOWED_HOSTS` | Разрешённые хосты | `localhost,127.0.0.1` |
 | `POSTGRES_DB` | Имя базы данных | `team_finder` |
 | `POSTGRES_USER` | Пользователь БД | `team_finder` |
 | `POSTGRES_PASSWORD` | Пароль БД | `your_secure_password` |
 | `POSTGRES_HOST` | Хост БД | `localhost` |
 | `POSTGRES_PORT` | Порт БД | `5436` |
-| `TASK_VERSION` | Номер варианта | `2` |
 
 ## 🧪 Тестирование
 
@@ -213,6 +218,7 @@ team-finder-ad/
 В `.env` установите:
 ```env
 DJANGO_DEBUG=False
+DJANGO_ALLOWED_HOSTS=yourdomain.com,www.yourdomain.com
 ```
 
 ### 2. Соберите статические файлы
@@ -235,5 +241,4 @@ python manage.py collectstatic
 
 - GitHub: [@olyasmn-creator](https://github.com/olyasmn-creator/team-finder-ad)
 
----
 **TeamFinder** © 2026. Сделано с ❤️ для поиска крутых команд!

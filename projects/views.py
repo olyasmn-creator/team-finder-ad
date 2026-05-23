@@ -1,13 +1,17 @@
 from http import HTTPStatus
 
 from django.contrib import messages
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ProjectForm
 from .models import Project
 from .service import get_paginated_queryset
+
+User = get_user_model()
 
 
 def project_list_view(request):
@@ -16,7 +20,7 @@ def project_list_view(request):
     Сортировка: новые сверху (по -created_at)
     """
     queryset = Project.objects.all().select_related('owner').prefetch_related('participants')
-    page_obj = get_paginated_queryset(queryset, request, per_page=12)
+    page_obj = get_paginated_queryset(queryset, request)
     
     context = {
         'projects': page_obj,

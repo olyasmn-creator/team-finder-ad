@@ -10,6 +10,7 @@ class GitHubUrlMixin:
     Миксин для валидации ссылки на GitHub.
     Можно использовать в любых формах, где есть поле github_url.
     """
+
     def clean_github_url(self):
         """
         Валидация ссылки на GitHub.
@@ -36,6 +37,7 @@ class ProjectForm(GitHubUrlMixin, forms.ModelForm):
     Форма для создания и редактирования проекта.
     Используется на странице /projects/create-project/ и /projects/<id>/edit/
     """
+
     class Meta:
         model = Project
         fields = ['name', 'description', 'github_url', 'status']

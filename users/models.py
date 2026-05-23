@@ -1,43 +1,23 @@
 import io
 import random
 
-from django.contrib.auth.models import AbstractUser, BaseUserManager
+from django.contrib.auth.models import AbstractUser
 from django.core.files.base import ContentFile
 from django.db import models
 from PIL import Image, ImageDraw, ImageFont
 
 from .constants import (
+    ABOUT_MAX_LENGTH,
+    AVATAR_COLORS,
     AVATAR_DEFAULT_SIZE,
     AVATAR_FONT_SIZE,
     AVATAR_TEXT_COLOR,
     NAME_MAX_LENGTH,
-    SURNAME_MAX_LENGTH,
-    ABOUT_MAX_LENGTH,
     PHONE_MAX_LENGTH,
-    AVATAR_COLORS,
+    SKILL_NAME_MAX_LENGTH,
+    SURNAME_MAX_LENGTH,
 )
-
-
-class UserManager(BaseUserManager):
-    """
-    Менеджер для модели User.
-    Переопределяем методы создания пользователя, чтобы использовать email вместо username.
-    """
-    
-    def create_user(self, email, password=None, **extra_fields):
-        if not email:
-            raise ValueError('Поле Email обязательно для заполнения')
-        
-        email = self.normalize_email(email)
-        user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-    def create_superuser(self, email, password=None, **extra_fields):
-        extra_fields.setdefault('is_staff', True)
-        extra_fields.setdefault('is_superuser', True)
-        return self.create_user(email, password, **extra_fields)
+from .managers import UserManager
 
 
 class User(AbstractUser):
@@ -45,6 +25,7 @@ class User(AbstractUser):
     Кастомная модель пользователя для TeamFinder.
     Вход осуществляется по email.
     """
+    
     username = None
     
     email = models.EmailField('email address', unique=True)
@@ -138,7 +119,8 @@ class Skill(models.Model):
     Модель навыка.
     Используется для тегов в профилях пользователей.
     """
-    name = models.CharField(max_length=124, unique=True)
+    
+    name = models.CharField(max_length=SKILL_NAME_MAX_LENGTH, unique=True)
 
     class Meta:
         ordering = ['name']

@@ -1,11 +1,9 @@
-# === Константы для модели User ===
-
 NAME_MAX_LENGTH = 124
 SURNAME_MAX_LENGTH = 124
 ABOUT_MAX_LENGTH = 256
 PHONE_MAX_LENGTH = 12
 
-# === Константы для генерации аватара ===
+SKILL_NAME_MAX_LENGTH = 124
 
 AVATAR_DEFAULT_SIZE = (200, 200)
 AVATAR_FONT_SIZE = 100
@@ -19,8 +17,6 @@ AVATAR_COLORS = [
     (230, 126, 34),
     (231, 76, 60),
 ]
-
-# === Константы для views ===
 
 USERS_PER_PAGE = 12
 PROJECTS_PER_PAGE = 10
